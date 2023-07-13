@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang=en>
+<meta charset=utf-8>
+<title>Fake Browser</title>
+<style>
+	:root {
+		--fg: #888;
+		--bg: #fff;
+		--bg-url: rgba(255, 255, 255, 0.5);
+		--bg-content: rgba(255, 255, 255, 0.5);
+		--scale: 1;
+		--button-size: calc(32px * var(--scale));
+		--font-size: calc(16px * var(--scale));
+		--border-thick: calc(4px * var(--scale));
+		--border-thin: calc(2px * var(--scale));
+		--url-spacing: calc(2px * var(--scale));
+	}
+	body, input {
+		font-family: Arial, sans-serif;
+	}
+	body, div {
+		display: flex;
+	}
+	#container {
+		border: var(--border-thick) solid var(--fg);
+		background: var(--bg);
+		flex-direction: column;
+	}
+	.toolbar {
+		border-bottom: var(--border-thin) solid var(--fg);
+	}
+	svg.button {
+		width: var(--button-size);
+		height: var(--button-size);
+		fill: none;
+		stroke: var(--fg);
+		stroke-width: 2px;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+	svg.button .arrowhead {
+		fill: var(--fg);
+		stroke-linejoin: miter;
+	}
+	.url {
+		flex-grow: 1;
+		border: var(--border-thin) solid var(--fg);
+		margin: var(--url-spacing);
+		padding: var(--url-spacing);
+		font-size: var(--font-size);
+		background: var(--bg-url);
+	}
+	.url, .url::placeholder, #content {
+		color: var(--fg);
+	}
+	#content {
+		justify-content: center;
+		align-items: center;
+		background: var(--bg-content);
+	}
+	#content.minsize {
+		min-width: 320px;
+		min-height: 180px;
+	}
+</style>
+<div id=container>
+	<div class=toolbar>
+		<svg class=button id=back viewBox="0 0 32 32">
+			<path d="M 8 16 24 8 24 24 Z" />
+		</svg>
+		<svg class=button id=forward viewBox="0 0 32 32">
+			<path d="M 24 16 8 8 8 24 Z" />
+		</svg>
+		<svg class=button id=refresh viewBox="0 0 32 32">
+			<path d="M 21.66 21.66 A 8 8 0 1 1 21.66 10.34" />
+			<path class=arrowhead d="M 19.66 12.34 23.66 12.34 23.66 8.34 Z" />
+		</svg>
+		<input class=url placeholder=URL>
+		<svg class=button id=close viewBox="0 0 32 32">
+			<line x1=8 y1=8 x2=24 y2=24 />
+			<line x1=24 y1=8 x2=8 y2=24 />
+		</svg>
+	</div>
+	<div id=content class="minsize">
+		Drop an image file anywhere on this page<br>
+		to display it in the fake browser frame.
+	</div>
+</div>
+<script>
+	const content = document.getElementById("content");
+	function dropHandler(event) {
+		event.preventDefault();
+		if (event.dataTransfer.files.length !== 1) return;
+		const file = event.dataTransfer.files[0];
+		if (!file.type.startsWith("image/")) return;
+		const img = document.createElement("img");
+		img.src = URL.createObjectURL(file);
+		img.alt = "";
+		content.classList.remove("minsize");
+		content.replaceChildren(img);
+	}
+	document.addEventListener("drop", dropHandler);
+	document.addEventListener("dragenter", event => event.preventDefault());
+	document.addEventListener("dragover", event => event.preventDefault());
+</script>
